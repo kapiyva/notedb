@@ -80,7 +80,7 @@ These are excluded to keep note.db minimal and methodology-agnostic.
 
 ## Publishing a Format
 
-1. Prepare a DDL file (`schema.sql`) that satisfies note.db.
+1. Prepare a DDL file (`format.sql`) that satisfies note.db.
 2. Prepare a `spec.md` describing the design intent.
 3. Publish both in any repository.
 
@@ -88,4 +88,4 @@ The format name `<name>-v<N>` is recommended (e.g. `zettelkasten-v1`).
 
 ## Examples
 
-- [`basic-v1`](examples/basic-v1/schema.sql) — a minimal format with only the required columns.
+- [`basic-v1`](examples/basic-v1/format.sql) — a minimal format with only the required columns.

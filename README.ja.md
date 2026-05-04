@@ -80,7 +80,7 @@ note.db を最小限かつメソドロジー非依存に保つため、以下は
 
 ## フォーマットを公開するには
 
-1. note.db を満たす DDL ファイル（`schema.sql`）を用意します。
+1. note.db を満たす DDL ファイル（`format.sql`）を用意します。
 2. 設計意図を記述した `spec.md` を用意します。
 3. 任意のリポジトリで公開します。
 
@@ -88,4 +88,4 @@ note.db を最小限かつメソドロジー非依存に保つため、以下は
 
 ## 例
 
-- [`basic-v1`](examples/basic-v1/schema.sql) — 必須カラムのみを持つ最小フォーマット。
+- [`basic-v1`](examples/basic-v1/format.sql) — 必須カラムのみを持つ最小フォーマット。
