@@ -64,6 +64,17 @@ Table names and view names must be prefixed with the format name. Because SQL id
 - Changing column types or dropping columns is discouraged as it breaks compatibility with tools and other versions of a format reading the same database
 - Anything not defined by note.db is left to the format designer
 
+### 5. Related Tables
+
+A related table represents a one-to-many relationship attached to a note. Any table that satisfies all of the following is a related table:
+
+```sql
+note_id  TEXT NOT NULL REFERENCES <note_table>(id)
+label    TEXT NOT NULL
+```
+
+Other columns are at the format designer's discretion (and remain nullable per Convention 4). A related table may include additional foreign keys to other note tables under any other column name.
+
 ---
 
 ## What note.db Intentionally Leaves Out
