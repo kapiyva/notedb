@@ -62,8 +62,10 @@ updated_at TEXT NOT NULL     -- ISO 8601
 プロパティテーブルは、ノートに紐付くラベル付きの一対多の関係を表現します。以下をすべて満たすテーブルをプロパティテーブルと呼びます。
 
 ```sql
-note_id  TEXT NOT NULL REFERENCES <note_table>(id)
-label    TEXT NOT NULL
+note_id    TEXT NOT NULL REFERENCES <note_table>(id)
+label      TEXT NOT NULL
+created_at TEXT NOT NULL  -- ISO 8601
+updated_at TEXT NOT NULL  -- ISO 8601
 ```
 
 それ以外のカラムはフォーマット設計者の自由です（規約5により nullable）。プロパティテーブルは、別の note table への FK を任意のカラム名で追加で持ってかまいません。

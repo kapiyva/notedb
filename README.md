@@ -62,8 +62,10 @@ Table names and view names must be prefixed with the format name. Because SQL id
 A property table represents a labeled one-to-many relationship attached to a note. Any table that satisfies all of the following is a property table:
 
 ```sql
-note_id  TEXT NOT NULL REFERENCES <note_table>(id)
-label    TEXT NOT NULL
+note_id    TEXT NOT NULL REFERENCES <note_table>(id)
+label      TEXT NOT NULL
+created_at TEXT NOT NULL  -- ISO 8601
+updated_at TEXT NOT NULL  -- ISO 8601
 ```
 
 Other columns are at the format designer's discretion (and remain nullable per Convention 5). A property table may include additional foreign keys to other note tables under any other column name.
