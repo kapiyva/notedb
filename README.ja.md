@@ -105,3 +105,5 @@ note.db を最小限かつメソドロジー非依存に保つため、以下は
 ## 例
 
 - [`basic-v1`](examples/basic-v1/format.sql) — 必須カラムのみを持つ最小フォーマット。
+- [`todo-v1`](examples/todo-v1/format.sql) — ステータス、期限、タグを持つシンプルな ToDo フォーマット。
+- [`diary-v1`](examples/diary-v1/format.sql) — 日付ごとの1エントリとタグを持つシンプルな日記フォーマット。

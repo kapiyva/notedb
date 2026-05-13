@@ -105,3 +105,5 @@ The format name `<name>-v<N>` is recommended (e.g. `zettelkasten-v1`).
 ## Examples
 
 - [`basic-v1`](examples/basic-v1/format.sql) — a minimal format with only the required columns.
+- [`todo-v1`](examples/todo-v1/format.sql) — a simple todo format with status, due date, and tags.
+- [`diary-v1`](examples/diary-v1/format.sql) — a simple diary format with one entry per date and tags.
