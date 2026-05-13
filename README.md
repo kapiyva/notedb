@@ -24,6 +24,8 @@ SQL is a mature open standard with decades of history. Pulling fragments togethe
 
 SQLite implements that SQL as a single file, readable and writable in any environment — the de facto standard.
 
+The same motivation might seem satisfied by a pile of files like Markdown. But each file is an independent document, with no shared way to bind them together. How tags and relationships are expressed is left to loose conventions — frontmatter keys, folder structures — that depend on each file and the user's discipline, and there is no way to distribute that convention itself so that another tool can apply it consistently. note.db puts that role on the SQLite schema. A format is a DDL — a distributable artifact — that takes effect as structure the moment the database is opened, and aggregation and cross-cutting search come built in as SQL.
+
 ---
 
 ## Conventions
