@@ -57,8 +57,8 @@ updated_at TEXT NOT NULL     -- ISO 8601
 プレフィックスより後ろの部分は単数形にします（例: `..._note`, `..._task`, `..._tag`。`..._notes` のような複数形は使いません）。名前が揃ううえ、プロパティテーブルの参照列名を `<テーブル名>_id` と機械的に導出できます（規約4参照）。
 
 ```
-<format>_<table>     -- 例: zettelkasten_v1_note, evergreen_v1_note
-<format>_v_<view>    -- 例: zettelkasten_v1_v_graph（ビューは推奨、必須ではない）
+<format>_<table>      -- 例: zettelkasten_v1_note, evergreen_v1_note
+<format>_<view>_view  -- 例: zettelkasten_v1_graph_view（ビューは推奨、必須ではない）
 ```
 
 ### 4. プロパティテーブル
@@ -66,21 +66,23 @@ updated_at TEXT NOT NULL     -- ISO 8601
 プロパティテーブルは、ノートに紐付くラベル付きの一対多の関係を表現します。以下をすべて満たすテーブルをプロパティテーブルと呼びます（ノートテーブル `todo_v1_task` に紐付くプロパティテーブルの例）。
 
 ```sql
-task_id    TEXT NOT NULL REFERENCES todo_v1_task(id)
-label      TEXT NOT NULL
-created_at TEXT NOT NULL  -- ISO 8601
-updated_at TEXT NOT NULL  -- ISO 8601
+task_id  TEXT NOT NULL REFERENCES todo_v1_task(id)
+label    TEXT NOT NULL
 ```
 
 参照列の名前は、参照先ノートテーブルの単数名からプレフィックスを除いた部分に `_id` を付けたものにします。たとえば `todo_v1_task` を参照するなら `task_id REFERENCES todo_v1_task(id)`、`diary_v1_entry` を参照するなら `entry_id REFERENCES diary_v1_entry(id)` です。
 
-それ以外のカラムはフォーマット設計者の自由です（規約5により nullable）。プロパティテーブルは、別の note table への FK を任意のカラム名で追加で持ってかまいません。
+`label` はそのプロパティ行の人間可読な表示値です。汎用クライアントが行に対して必ず表示できる唯一の文字列（タグ名、ファイル名、リンクタイトルなど）を指します。表示値を持たない一対多の関係はプロパティテーブルではなく、規約2の通常の追加テーブルとして表現してください。
+
+note.db はプロパティテーブルに一意性を含意しません。意味に応じて主キーや UNIQUE 制約を張ってください。たとえばノートが各タグを高々1つだけ持つタグなら `(task_id, label)` を一意にし、同じファイル名が正当に重複しうる添付では一意にしない、といった具合です。
+
+それ以外のカラムはフォーマット設計者の自由です（規約5により nullable またはデフォルト値付き）。プロパティテーブルは、別の note table への FK を任意のカラム名で追加で持ってかまいません。
 
 ノートテーブルを参照するがこの形に当てはまらないテーブルはプロパティテーブルではなく、note.db は制限を設けません。
 
 ### 5. 拡張性
 
-- ノートテーブルおよびプロパティテーブルにおいて、note.db が定めるカラム以外のカラムは nullable にしなければなりません
+- ノートテーブルおよびプロパティテーブルにおいて、note.db が定めるカラム以外のカラムは nullable にするか `DEFAULT` を持たせてください。これにより、note.db が定めるカラムだけを知るクライアントでも有効な行を挿入できます
 - 既存カラムの型変更・削除は、同じデータベースを読み込むツールや他バージョンのフォーマットとの互換性を壊すため非推奨です
 - note.db が定めないことはフォーマット設計者が自由に決めてかまいません
 

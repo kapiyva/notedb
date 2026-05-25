@@ -57,8 +57,8 @@ Table names and view names must be prefixed with the format name. Because SQL id
 The part after the prefix uses the singular form (e.g. `..._note`, `..._task`, `..._tag` — not `..._notes`). This keeps names consistent and lets a property table derive its reference column name mechanically as `<table>_id` (see Convention 4).
 
 ```
-<format>_<table>     -- e.g. zettelkasten_v1_note, evergreen_v1_note
-<format>_v_<view>    -- e.g. zettelkasten_v1_v_graph (views are recommended, not required)
+<format>_<table>      -- e.g. zettelkasten_v1_note, evergreen_v1_note
+<format>_<view>_view  -- e.g. zettelkasten_v1_graph_view (views are recommended, not required)
 ```
 
 ### 4. Property Tables
@@ -66,21 +66,23 @@ The part after the prefix uses the singular form (e.g. `..._note`, `..._task`, `
 A property table represents a labeled one-to-many relationship attached to a note. Any table that satisfies all of the following is a property table (shown for a property table on the note table `todo_v1_task`):
 
 ```sql
-task_id    TEXT NOT NULL REFERENCES todo_v1_task(id)
-label      TEXT NOT NULL
-created_at TEXT NOT NULL  -- ISO 8601
-updated_at TEXT NOT NULL  -- ISO 8601
+task_id  TEXT NOT NULL REFERENCES todo_v1_task(id)
+label    TEXT NOT NULL
 ```
 
 The reference column is named after the note table it points to: take the referenced note table's singular name with the format prefix removed, and append `_id`. So a property table on `todo_v1_task` uses `task_id REFERENCES todo_v1_task(id)`, and one on `diary_v1_entry` uses `entry_id REFERENCES diary_v1_entry(id)`.
 
-Other columns are at the format designer's discretion (and remain nullable per Convention 5). A property table may include additional foreign keys to other note tables under any other column name.
+`label` is the property's human-readable display value — the one string a generic client can always show for the row (the tag text, a file name, a link title). A one-to-many relationship with no such display value is not a property table; model it as a plain additional table (Convention 2).
+
+note.db implies no uniqueness on a property table. Add a primary key or unique constraint that matches your semantics — e.g. `(task_id, label)` for tags, where a note carries each tag at most once, but not for attachments, where the same file name may legitimately repeat.
+
+Other columns are at the format designer's discretion (nullable, or with a `DEFAULT`, per Convention 5). A property table may include additional foreign keys to other note tables under any other column name.
 
 Tables that reference a note table but do not match this shape are not property tables; note.db places no restrictions on them.
 
 ### 5. Extensibility
 
-- On note tables and property tables, columns beyond those specified by note.db must be nullable
+- On note tables and property tables, columns beyond those specified by note.db must be nullable or carry a `DEFAULT`, so that a client knowing only the note.db-defined columns can still insert a valid row
 - Changing column types or dropping columns is discouraged as it breaks compatibility with tools and other versions of a format reading the same database
 - Anything not defined by note.db is left to the format designer
 

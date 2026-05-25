@@ -12,8 +12,7 @@ CREATE TABLE todo_v1_task (
 );
 
 CREATE TABLE todo_v1_tag (
-    task_id    TEXT NOT NULL REFERENCES todo_v1_task(id),
-    label      TEXT NOT NULL,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL
+    task_id TEXT NOT NULL REFERENCES todo_v1_task(id),
+    label   TEXT NOT NULL,
+    PRIMARY KEY (task_id, label)
 );

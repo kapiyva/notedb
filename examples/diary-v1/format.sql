@@ -11,8 +11,7 @@ CREATE TABLE diary_v1_entry (
 );
 
 CREATE TABLE diary_v1_tag (
-    entry_id   TEXT NOT NULL REFERENCES diary_v1_entry(id),
-    label      TEXT NOT NULL,
-    created_at TEXT NOT NULL,
-    updated_at TEXT NOT NULL
+    entry_id TEXT NOT NULL REFERENCES diary_v1_entry(id),
+    label    TEXT NOT NULL,
+    PRIMARY KEY (entry_id, label)
 );
