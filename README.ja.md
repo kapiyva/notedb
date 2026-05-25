@@ -63,14 +63,14 @@ updated_at TEXT NOT NULL     -- ISO 8601
 
 ### 4. プロパティテーブル
 
-プロパティテーブルは、ノートに紐付くラベル付きの一対多の関係を表現します。以下をすべて満たすテーブルをプロパティテーブルと呼びます（ノートテーブル `todo_task` に紐付くプロパティテーブルの例）。
+プロパティテーブルは、ノートに紐付くラベル付きの一対多の関係を表現します。以下をすべて満たすテーブルをプロパティテーブルと呼びます（フォーマットが `zettelkasten`、プレフィックスを除いたテーブル名が `fleeting` であるノートテーブル `zettelkasten_fleeting` に紐付くプロパティテーブルの例）。
 
 ```sql
-task_id  TEXT NOT NULL REFERENCES todo_task(id)
-label    TEXT NOT NULL
+fleeting_id  TEXT NOT NULL REFERENCES zettelkasten_fleeting(id)
+label        TEXT NOT NULL
 ```
 
-参照列の名前は、参照先ノートテーブルの単数名からプレフィックスを除いた部分に `_id` を付けたものにします。たとえば `todo_task` を参照するなら `task_id REFERENCES todo_task(id)`、`diary_entry` を参照するなら `entry_id REFERENCES diary_entry(id)` です。
+参照列の名前は、参照先ノートテーブルの単数名からプレフィックスを除いた部分に `_id` を付けたものにします。たとえば `zettelkasten_fleeting` を参照するなら `fleeting_id REFERENCES zettelkasten_fleeting(id)`、同様に `todo_task` なら `task_id`、`diary_entry` なら `entry_id` です。
 
 `label` はそのプロパティ行の人間可読な表示値です。汎用クライアントが行に対して必ず表示できる唯一の文字列（タグ名、ファイル名、リンクタイトルなど）を指します。表示値を持たない一対多の関係はプロパティテーブルではなく、規約2の通常の追加テーブルとして表現してください。
 

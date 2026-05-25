@@ -63,14 +63,14 @@ The part after the prefix uses the singular form (e.g. `..._note`, `..._task`, `
 
 ### 4. Property Tables
 
-A property table represents a labeled one-to-many relationship attached to a note. Any table that satisfies all of the following is a property table (shown for a property table on the note table `todo_task`):
+A property table represents a labeled one-to-many relationship attached to a note. Any table that satisfies all of the following is a property table (shown for a property table on the note table `zettelkasten_fleeting`, whose format is `zettelkasten` and whose bare table name is `fleeting`):
 
 ```sql
-task_id  TEXT NOT NULL REFERENCES todo_task(id)
-label    TEXT NOT NULL
+fleeting_id  TEXT NOT NULL REFERENCES zettelkasten_fleeting(id)
+label        TEXT NOT NULL
 ```
 
-The reference column is named after the note table it points to: take the referenced note table's singular name with the format prefix removed, and append `_id`. So a property table on `todo_task` uses `task_id REFERENCES todo_task(id)`, and one on `diary_entry` uses `entry_id REFERENCES diary_entry(id)`.
+The reference column is named after the note table it points to: take the referenced note table's singular name with the format prefix removed, and append `_id`. So a property table on `zettelkasten_fleeting` uses `fleeting_id REFERENCES zettelkasten_fleeting(id)`; likewise `todo_task` → `task_id` and `diary_entry` → `entry_id`.
 
 `label` is the property's human-readable display value — the one string a generic client can always show for the row (the tag text, a file name, a link title). A one-to-many relationship with no such display value is not a property table; model it as a plain additional table (Convention 2).
 
