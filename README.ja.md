@@ -52,25 +52,25 @@ updated_at TEXT NOT NULL     -- ISO 8601
 
 ### 3. プレフィックス
 
-テーブル名とビュー名にはフォーマット名のプレフィックスを付けます。SQL 識別子はハイフンを使えないため、フォーマット名にハイフンが含まれる場合はプレフィックスではアンダースコアに置き換えます（例: フォーマット `zettelkasten-v1` のプレフィックスは `zettelkasten_v1`）。
+テーブル名とビュー名にはフォーマット名のプレフィックスを付けます。SQL 識別子はハイフンを使えないため、フォーマット名にハイフンが含まれる場合はプレフィックスではアンダースコアに置き換えます（例: フォーマット `cornell-notes` のプレフィックスは `cornell_notes`）。
 
 プレフィックスより後ろの部分は単数形にします（例: `..._note`, `..._task`, `..._tag`。`..._notes` のような複数形は使いません）。名前が揃ううえ、プロパティテーブルの参照列名を `<テーブル名>_id` と機械的に導出できます（規約4参照）。
 
 ```
-<format>_<table>      -- 例: zettelkasten_v1_note, evergreen_v1_note
-<format>_<view>_view  -- 例: zettelkasten_v1_graph_view（ビューは推奨、必須ではない）
+<format>_<table>      -- 例: zettelkasten_note, evergreen_note
+<format>_<view>_view  -- 例: zettelkasten_graph_view（ビューは推奨、必須ではない）
 ```
 
 ### 4. プロパティテーブル
 
-プロパティテーブルは、ノートに紐付くラベル付きの一対多の関係を表現します。以下をすべて満たすテーブルをプロパティテーブルと呼びます（ノートテーブル `todo_v1_task` に紐付くプロパティテーブルの例）。
+プロパティテーブルは、ノートに紐付くラベル付きの一対多の関係を表現します。以下をすべて満たすテーブルをプロパティテーブルと呼びます（ノートテーブル `todo_task` に紐付くプロパティテーブルの例）。
 
 ```sql
-task_id  TEXT NOT NULL REFERENCES todo_v1_task(id)
+task_id  TEXT NOT NULL REFERENCES todo_task(id)
 label    TEXT NOT NULL
 ```
 
-参照列の名前は、参照先ノートテーブルの単数名からプレフィックスを除いた部分に `_id` を付けたものにします。たとえば `todo_v1_task` を参照するなら `task_id REFERENCES todo_v1_task(id)`、`diary_v1_entry` を参照するなら `entry_id REFERENCES diary_v1_entry(id)` です。
+参照列の名前は、参照先ノートテーブルの単数名からプレフィックスを除いた部分に `_id` を付けたものにします。たとえば `todo_task` を参照するなら `task_id REFERENCES todo_task(id)`、`diary_entry` を参照するなら `entry_id REFERENCES diary_entry(id)` です。
 
 `label` はそのプロパティ行の人間可読な表示値です。汎用クライアントが行に対して必ず表示できる唯一の文字列（タグ名、ファイル名、リンクタイトルなど）を指します。表示値を持たない一対多の関係はプロパティテーブルではなく、規約2の通常の追加テーブルとして表現してください。
 
@@ -94,6 +94,7 @@ note.db を最小限かつメソドロジー非依存に保つため、以下は
 
 - DB レベルの整合性強制の義務化
 - CRUD 操作の実装方法
+- フォーマットのバージョン間のマイグレーション
 - ビューの提供義務
 - 特定メソドロジーの表現方法
 - UI や表示に関するヒント
@@ -106,10 +107,10 @@ note.db を最小限かつメソドロジー非依存に保つため、以下は
 2. 設計意図を記述した `spec.md` を用意します。
 3. 任意のリポジトリで公開します。
 
-フォーマット名は `<name>-v<N>` の形式を推奨します（例: `zettelkasten-v1`）。
+フォーマット名はそのままテーブルのプレフィックスになります（規約3）。同じデータベース上の他フォーマットと衝突しにくい固有な名前を選んでください。note.db はバージョン命名の規約を定めません。破壊的変更を旧リリースのデータと共存させたい場合は、別名で公開してください。
 
 ## 例
 
-- [`basic-v1`](examples/basic-v1/format.sql) — 必須カラムのみを持つ最小フォーマット。
-- [`todo-v1`](examples/todo-v1/format.sql) — ステータス、期限、タグを持つシンプルな ToDo フォーマット。
-- [`diary-v1`](examples/diary-v1/format.sql) — 日付ごとの1エントリとタグを持つシンプルな日記フォーマット。
+- [`basic`](examples/basic/format.sql) — 必須カラムのみを持つ最小フォーマット。
+- [`todo`](examples/todo/format.sql) — ステータス、期限、タグを持つシンプルな ToDo フォーマット。
+- [`diary`](examples/diary/format.sql) — 日付ごとの1エントリとタグを持つシンプルな日記フォーマット。

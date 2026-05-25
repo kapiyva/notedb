@@ -1,6 +1,6 @@
--- todo-v1: a simple todo format with status, due date, and tags.
+-- todo: a simple todo format with status, due date, and tags.
 
-CREATE TABLE todo_v1_task (
+CREATE TABLE todo_task (
     id           TEXT PRIMARY KEY,
     title        TEXT NOT NULL,
     body         TEXT,
@@ -11,8 +11,8 @@ CREATE TABLE todo_v1_task (
     completed_at TEXT             -- ISO 8601
 );
 
-CREATE TABLE todo_v1_tag (
-    task_id TEXT NOT NULL REFERENCES todo_v1_task(id),
+CREATE TABLE todo_tag (
+    task_id TEXT NOT NULL REFERENCES todo_task(id),
     label   TEXT NOT NULL,
     PRIMARY KEY (task_id, label)
 );

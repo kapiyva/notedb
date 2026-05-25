@@ -1,6 +1,6 @@
--- basic-v1: a minimal note.db format with only the required columns.
+-- basic: a minimal note.db format with only the required columns.
 
-CREATE TABLE basic_v1_note (
+CREATE TABLE basic_note (
     id         TEXT PRIMARY KEY,
     title      TEXT NOT NULL,
     body       TEXT,
