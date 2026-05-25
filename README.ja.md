@@ -54,21 +54,25 @@ updated_at TEXT NOT NULL     -- ISO 8601
 
 テーブル名とビュー名にはフォーマット名のプレフィックスを付けます。SQL 識別子はハイフンを使えないため、フォーマット名にハイフンが含まれる場合はプレフィックスではアンダースコアに置き換えます（例: フォーマット `zettelkasten-v1` のプレフィックスは `zettelkasten_v1`）。
 
+プレフィックスより後ろの部分は単数形にします（例: `..._note`, `..._task`, `..._tag`。`..._notes` のような複数形は使いません）。名前が揃ううえ、プロパティテーブルの参照列名を `<テーブル名>_id` と機械的に導出できます（規約4参照）。
+
 ```
-<format>_<table>     -- 例: zettelkasten_v1_notes, evergreen_v1_notes
+<format>_<table>     -- 例: zettelkasten_v1_note, evergreen_v1_note
 <format>_v_<view>    -- 例: zettelkasten_v1_v_graph（ビューは推奨、必須ではない）
 ```
 
 ### 4. プロパティテーブル
 
-プロパティテーブルは、ノートに紐付くラベル付きの一対多の関係を表現します。以下をすべて満たすテーブルをプロパティテーブルと呼びます。
+プロパティテーブルは、ノートに紐付くラベル付きの一対多の関係を表現します。以下をすべて満たすテーブルをプロパティテーブルと呼びます（ノートテーブル `todo_v1_task` に紐付くプロパティテーブルの例）。
 
 ```sql
-note_id    TEXT NOT NULL REFERENCES <note_table>(id)
+task_id    TEXT NOT NULL REFERENCES todo_v1_task(id)
 label      TEXT NOT NULL
 created_at TEXT NOT NULL  -- ISO 8601
 updated_at TEXT NOT NULL  -- ISO 8601
 ```
+
+参照列の名前は、参照先ノートテーブルの単数名からプレフィックスを除いた部分に `_id` を付けたものにします。たとえば `todo_v1_task` を参照するなら `task_id REFERENCES todo_v1_task(id)`、`diary_v1_entry` を参照するなら `entry_id REFERENCES diary_v1_entry(id)` です。
 
 それ以外のカラムはフォーマット設計者の自由です（規約5により nullable）。プロパティテーブルは、別の note table への FK を任意のカラム名で追加で持ってかまいません。
 

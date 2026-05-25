@@ -54,21 +54,25 @@ A format may include tables beyond note tables, such as tags, links, or settings
 
 Table names and view names must be prefixed with the format name. Because SQL identifiers do not allow hyphens, the prefix uses underscores even when the format name contains hyphens (e.g. the format `zettelkasten-v1` uses the prefix `zettelkasten_v1`).
 
+The part after the prefix uses the singular form (e.g. `..._note`, `..._task`, `..._tag` — not `..._notes`). This keeps names consistent and lets a property table derive its reference column name mechanically as `<table>_id` (see Convention 4).
+
 ```
-<format>_<table>     -- e.g. zettelkasten_v1_notes, evergreen_v1_notes
+<format>_<table>     -- e.g. zettelkasten_v1_note, evergreen_v1_note
 <format>_v_<view>    -- e.g. zettelkasten_v1_v_graph (views are recommended, not required)
 ```
 
 ### 4. Property Tables
 
-A property table represents a labeled one-to-many relationship attached to a note. Any table that satisfies all of the following is a property table:
+A property table represents a labeled one-to-many relationship attached to a note. Any table that satisfies all of the following is a property table (shown for a property table on the note table `todo_v1_task`):
 
 ```sql
-note_id    TEXT NOT NULL REFERENCES <note_table>(id)
+task_id    TEXT NOT NULL REFERENCES todo_v1_task(id)
 label      TEXT NOT NULL
 created_at TEXT NOT NULL  -- ISO 8601
 updated_at TEXT NOT NULL  -- ISO 8601
 ```
+
+The reference column is named after the note table it points to: take the referenced note table's singular name with the format prefix removed, and append `_id`. So a property table on `todo_v1_task` uses `task_id REFERENCES todo_v1_task(id)`, and one on `diary_v1_entry` uses `entry_id REFERENCES diary_v1_entry(id)`.
 
 Other columns are at the format designer's discretion (and remain nullable per Convention 5). A property table may include additional foreign keys to other note tables under any other column name.
 

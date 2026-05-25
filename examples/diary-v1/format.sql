@@ -1,6 +1,6 @@
 -- diary-v1: a simple diary format with one entry per date and tags.
 
-CREATE TABLE diary_v1_entries (
+CREATE TABLE diary_v1_entry (
     id         TEXT PRIMARY KEY,
     title      TEXT NOT NULL,
     body       TEXT,
@@ -10,8 +10,8 @@ CREATE TABLE diary_v1_entries (
     mood       TEXT              -- free text or rating
 );
 
-CREATE TABLE diary_v1_tags (
-    note_id    TEXT NOT NULL REFERENCES diary_v1_entries(id),
+CREATE TABLE diary_v1_tag (
+    entry_id   TEXT NOT NULL REFERENCES diary_v1_entry(id),
     label      TEXT NOT NULL,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL
