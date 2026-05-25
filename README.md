@@ -12,7 +12,7 @@ note.db is a set of shared conventions for using SQLite as a foundation for pers
 
 Tasks, notes, ideas, journals — the digital notebook that holds them has no portable, durable, open common standard. Each note tool stores its data in its own format, leaving a gap.
 
-note.db defines a set of conventions to fill this gap. It specifies only the foundation — the minimum shape of a note table, naming rules — and leaves concrete expression to each format (a set of DDL representing a particular methodology, e.g. `zettelkasten-v1`, `evergreen-v1`). On this shared foundation, multiple formats can coexist in the same SQLite file, and tools work across formats.
+note.db defines a set of conventions to fill this gap. It specifies only the foundation — the minimum shape of a note table, naming rules — and leaves concrete expression to each format (a set of DDL representing a particular methodology, e.g. `zettelkasten`, `evergreen`). On this shared foundation, multiple formats can coexist in the same SQLite file, and tools work across formats.
 
 note.db is not a library, CLI, or application — it is the conventions themselves. Anyone can publish a format or build tooling on top of it.
 
@@ -52,31 +52,37 @@ A format may include tables beyond note tables, such as tags, links, or settings
 
 ### 3. Prefixes
 
-Table names and view names must be prefixed with the format name. Because SQL identifiers do not allow hyphens, the prefix uses underscores even when the format name contains hyphens (e.g. the format `zettelkasten-v1` uses the prefix `zettelkasten_v1`).
+Table names and view names must be prefixed with the format name. Because SQL identifiers do not allow hyphens, the prefix uses underscores even when the format name contains hyphens (e.g. the format `cornell-notes` uses the prefix `cornell_notes`).
+
+The part after the prefix uses the singular form (e.g. `..._note`, `..._task`, `..._tag` — not `..._notes`). This keeps names consistent and lets a property table derive its reference column name mechanically as `<table>_id` (see Convention 4).
 
 ```
-<format>_<table>     -- e.g. zettelkasten_v1_notes, evergreen_v1_notes
-<format>_v_<view>    -- e.g. zettelkasten_v1_v_graph (views are recommended, not required)
+<format>_<table>      -- e.g. zettelkasten_note, evergreen_note
+<format>_<view>_view  -- e.g. zettelkasten_graph_view (views are recommended, not required)
 ```
 
 ### 4. Property Tables
 
-A property table represents a labeled one-to-many relationship attached to a note. Any table that satisfies all of the following is a property table:
+A property table represents a labeled one-to-many relationship attached to a note. Any table that satisfies all of the following is a property table (shown for a property table on the note table `zettelkasten_fleeting`, whose format is `zettelkasten` and whose bare table name is `fleeting`):
 
 ```sql
-note_id    TEXT NOT NULL REFERENCES <note_table>(id)
-label      TEXT NOT NULL
-created_at TEXT NOT NULL  -- ISO 8601
-updated_at TEXT NOT NULL  -- ISO 8601
+fleeting_id  TEXT NOT NULL REFERENCES zettelkasten_fleeting(id)
+label        TEXT NOT NULL
 ```
 
-Other columns are at the format designer's discretion (and remain nullable per Convention 5). A property table may include additional foreign keys to other note tables under any other column name.
+The reference column is named after the note table it points to: take the referenced note table's singular name with the format prefix removed, and append `_id`. So a property table on `zettelkasten_fleeting` uses `fleeting_id REFERENCES zettelkasten_fleeting(id)`; likewise `todo_task` → `task_id` and `diary_entry` → `entry_id`.
+
+`label` is the property's human-readable display value — the one string a generic client can always show for the row (the tag text, a file name, a link title). A one-to-many relationship with no such display value is not a property table; model it as a plain additional table (Convention 2).
+
+note.db implies no uniqueness on a property table. Add a primary key or unique constraint that matches your semantics — e.g. `(task_id, label)` for tags, where a note carries each tag at most once, but not for attachments, where the same file name may legitimately repeat.
+
+Other columns are at the format designer's discretion (nullable, or with a `DEFAULT`, per Convention 5). A property table may include additional foreign keys to other note tables under any other column name.
 
 Tables that reference a note table but do not match this shape are not property tables; note.db places no restrictions on them.
 
 ### 5. Extensibility
 
-- On note tables and property tables, columns beyond those specified by note.db must be nullable
+- On note tables and property tables, columns beyond those specified by note.db must be nullable or carry a `DEFAULT`, so that a client knowing only the note.db-defined columns can still insert a valid row
 - Changing column types or dropping columns is discouraged as it breaks compatibility with tools and other versions of a format reading the same database
 - Anything not defined by note.db is left to the format designer
 
@@ -88,6 +94,7 @@ These are excluded to keep note.db minimal and methodology-agnostic.
 
 - Mandatory enforcement of integrity at the DB level
 - How CRUD operations should be implemented
+- Migration between versions of a format
 - Any obligation to provide views
 - How a particular methodology must be expressed
 - Hints about UI or presentation
@@ -100,10 +107,10 @@ These are excluded to keep note.db minimal and methodology-agnostic.
 2. Prepare a `spec.md` describing the design intent.
 3. Publish both in any repository.
 
-The format name `<name>-v<N>` is recommended (e.g. `zettelkasten-v1`).
+The format name becomes the table prefix (Convention 3), so choose a name distinctive enough to avoid colliding with other formats in the same database. note.db does not prescribe a versioning scheme; if a breaking change must coexist with data from an earlier release, publish it under a distinct name.
 
 ## Examples
 
-- [`basic-v1`](examples/basic-v1/format.sql) — a minimal format with only the required columns.
-- [`todo-v1`](examples/todo-v1/format.sql) — a simple todo format with status, due date, and tags.
-- [`diary-v1`](examples/diary-v1/format.sql) — a simple diary format with one entry per date and tags.
+- [`basic`](examples/basic/format.sql) — a minimal format with only the required columns.
+- [`todo`](examples/todo/format.sql) — a simple todo format with status, due date, and tags.
+- [`diary`](examples/diary/format.sql) — a simple diary format with one entry per date and tags.
