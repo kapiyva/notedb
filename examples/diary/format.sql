@@ -2,8 +2,8 @@
 
 CREATE TABLE diary_entry (
     id         TEXT PRIMARY KEY,
-    title      TEXT NOT NULL,
-    body       TEXT,
+    title      TEXT,
+    body       TEXT NOT NULL,
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     entry_date TEXT,             -- ISO 8601 date (YYYY-MM-DD)

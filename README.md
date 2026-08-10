@@ -36,13 +36,15 @@ The central concept of note.db is the note table. Any table that has at least th
 
 ```sql
 id         TEXT PRIMARY KEY  -- UUID recommended
-title      TEXT NOT NULL
-body       TEXT              -- nullable
+title      TEXT              -- nullable
+body       TEXT NOT NULL
 created_at TEXT NOT NULL     -- ISO 8601
 updated_at TEXT NOT NULL     -- ISO 8601
 ```
 
 A format must have at least one note table.
+
+`body` is the note's content and is required. `title` is an optional heading: many notes — quick captures, journal entries, fleeting notes — are body only, and giving a note a heading is itself an act of curation that not every methodology has. When `title` is NULL, clients derive the note's display label from the first line of `body` (the fallback label). This keeps every note displayable in lists without forcing a title onto data that has none.
 
 How note tables are used is up to the format designer. For Zettelkasten, for example, a single note table with links managed in a separate table is valid, as is a separate note table for each note type (literature note, permanent note, etc.).
 
@@ -83,6 +85,7 @@ Tables that reference a note table but do not match this shape are not property 
 ### 5. Extensibility
 
 - On note tables and property tables, columns beyond those specified by note.db must be nullable or carry a `DEFAULT`, so that a client knowing only the note.db-defined columns can still insert a valid row
+- Constraints on the note.db-defined columns must not be tightened (e.g. adding `NOT NULL` to `title`). A format that wants a required title enforces it at the application layer, keeping the insert guarantee above intact
 - Changing column types or dropping columns is discouraged as it breaks compatibility with tools and other versions of a format reading the same database
 - Anything not defined by note.db is left to the format designer
 
