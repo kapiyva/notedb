@@ -84,8 +84,8 @@ Tables that reference a note table but do not match this shape are not property 
 
 ### 5. Extensibility
 
-- On note tables and property tables, columns beyond those specified by note.db must be nullable or carry a `DEFAULT`, so that a client knowing only the note.db-defined columns can still insert a valid row
-- Constraints on the note.db-defined columns must not be tightened (e.g. adding `NOT NULL` to `title`). A format that wants a required title enforces it at the application layer, keeping the insert guarantee above intact
+- On note tables and property tables, columns beyond those specified by note.db must be nullable or carry a `DEFAULT`. The same database file is shared by clients updated at different times, and by tools that know only the note.db-defined columns; a required extra column breaks every writer that predates it, and unlike an interactive editor, an outdated client cannot recover by asking for the missing value
+- Tightening a note.db-defined column (e.g. `NOT NULL` on `title` where a methodology treats the heading as essential) is allowed, but comes with a trade-off: such a table can no longer be written blindly by tools that know only the note.db shape. An interactive editor can recover from the constraint error by prompting for the missing value; non-interactive writers (capture tools, importers) cannot
 - Changing column types or dropping columns is discouraged as it breaks compatibility with tools and other versions of a format reading the same database
 - Anything not defined by note.db is left to the format designer
 
