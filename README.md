@@ -44,7 +44,7 @@ updated_at TEXT NOT NULL     -- ISO 8601
 
 A format must have at least one note table.
 
-`body` is the note's content and is required. `title` is an optional heading: many notes — quick captures, journal entries, fleeting notes — are body only, and giving a note a heading is itself an act of curation that not every methodology has. When `title` is NULL, clients derive the note's display label from the first line of `body` (the fallback label). This keeps every note displayable in lists without forcing a title onto data that has none.
+`body` is the note's content and is required. `title` is an optional heading: many notes — quick captures, journal entries, fleeting notes — are body only, and giving a note a heading is itself an act of curation that not every methodology has.
 
 How note tables are used is up to the format designer. For Zettelkasten, for example, a single note table with links managed in a separate table is valid, as is a separate note table for each note type (literature note, permanent note, etc.).
 
