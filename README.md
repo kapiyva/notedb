@@ -56,7 +56,7 @@ A format may include tables beyond note tables, such as tags, links, or settings
 
 Table names and view names must be prefixed with the format name. Because SQL identifiers do not allow hyphens, the prefix uses underscores even when the format name contains hyphens (e.g. the format `cornell-notes` uses the prefix `cornell_notes`).
 
-The part after the prefix uses the singular form (e.g. `..._note`, `..._task`, `..._tag` — not `..._notes`). This keeps names consistent and lets a property table derive its reference column name mechanically as `<table>_id` (see Convention 4).
+The part after the prefix uses the singular form (e.g. `..._note`, `..._task`, `..._tag` — not `..._notes`). This keeps names consistent and lets reference column names be derived mechanically as `<table>_id` (see Convention 4).
 
 ```
 <format>_<table>      -- e.g. zettelkasten_note, evergreen_note
@@ -65,26 +65,29 @@ The part after the prefix uses the singular form (e.g. `..._note`, `..._task`, `
 
 ### 4. Property Tables
 
-A property table represents a labeled one-to-many relationship attached to a note. Any table that satisfies all of the following is a property table (shown for a property table on the note table `zettelkasten_fleeting`, whose format is `zettelkasten` and whose bare table name is `fleeting`):
+A property table holds the vocabulary of values a note can carry — tags, statuses, moods. Any table that has at least the following columns is a property table.
 
 ```sql
-fleeting_id  TEXT NOT NULL REFERENCES zettelkasten_fleeting(id)
-label        TEXT NOT NULL
+id    TEXT PRIMARY KEY  -- UUID recommended
+label TEXT NOT NULL     -- human-readable display value
 ```
 
-The reference column is named after the note table it points to: take the referenced note table's singular name with the format prefix removed, and append `_id`. So a property table on `zettelkasten_fleeting` uses `fleeting_id REFERENCES zettelkasten_fleeting(id)`; likewise `todo_task` → `task_id` and `diary_entry` → `entry_id`.
+`label` is the row's human-readable display value — the one string a generic client can always show for the row (the tag text, a status name).
 
-`label` is the property's human-readable display value — the one string a generic client can always show for the row (the tag text, a file name, a link title). A one-to-many relationship with no such display value is not a property table; model it as a plain additional table (Convention 2).
+A note references a property in one of two ways:
 
-note.sql implies no uniqueness on a property table. Add a primary key or unique constraint that matches your semantics — e.g. `(task_id, label)` for tags, where a note carries each tag at most once, but not for attachments, where the same file name may legitimately repeat.
+- **Single-value** — the note table holds a foreign key to the property table (e.g. `status_id TEXT REFERENCES todo_status(id)`). Each note carries at most one value. Per Convention 5, the column is nullable or has a `DEFAULT`.
+- **Multi-value** — a junction table holds one foreign key to the note table and one to the property table (e.g. `todo_task_tag(task_id, tag_id)`). Each note carries any number of values.
 
-Other columns are at the format designer's discretion (nullable, or with a `DEFAULT`, per Convention 5). A property table may include additional foreign keys to other note tables under any other column name.
+In both patterns, a reference column is named after the table it points to: take the referenced table's singular name with the format prefix removed and append `_id`. So `todo_task` → `task_id`, `todo_tag` → `tag_id`, `diary_entry` → `entry_id`. This is what lets a generic client discover properties mechanically: find the tables shaped `id` + `label`, then follow the `<name>_id` columns that point at them — directly from a note table, or through a junction table.
 
-Tables that reference a note table but do not match this shape are not property tables; note.sql places no restrictions on them.
+note.sql implies no uniqueness beyond the primary key. Add constraints that match your semantics — e.g. `UNIQUE` on `label` where the vocabulary should not repeat, or a primary key of `(task_id, tag_id)` on a junction table where a note carries each tag at most once.
+
+Tables that do not match this shape are not property tables; note.sql places no restrictions on them.
 
 ### 5. Extensibility
 
-- On note tables and property tables, columns beyond those specified by note.sql must be nullable or carry a `DEFAULT`, so that a client knowing only the note.sql-defined columns can still insert a valid row
+- On note tables, property tables, and the junction tables of Convention 4, columns beyond those specified by note.sql must be nullable or carry a `DEFAULT`, so that a client knowing only the note.sql-defined columns can still insert a valid row
 - Changing column types or dropping columns is discouraged as it breaks compatibility with tools and other versions of a format reading the same database
 - Anything not defined by note.sql is left to the format designer
 

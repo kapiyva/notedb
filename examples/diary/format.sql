@@ -11,10 +11,16 @@ CREATE TABLE IF NOT EXISTS diary_entry (
     mood       TEXT              -- free text or rating
 );
 
+-- Multi-value property (Convention 4): entries and tags, many-to-many.
 CREATE TABLE IF NOT EXISTS diary_tag (
+    id    TEXT PRIMARY KEY,      -- UUID recommended
+    label TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS diary_entry_tag (
     entry_id TEXT NOT NULL REFERENCES diary_entry(id),
-    label    TEXT NOT NULL,
-    PRIMARY KEY (entry_id, label)
+    tag_id   TEXT NOT NULL REFERENCES diary_tag(id),
+    PRIMARY KEY (entry_id, tag_id)
 );
 
 CREATE TABLE IF NOT EXISTS diary_meta (

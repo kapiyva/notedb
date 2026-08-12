@@ -1,21 +1,33 @@
 -- todo: a simple todo format with status, due date, and tags.
 -- Safe to re-apply to an existing database (Convention 6).
 
+-- Single-value property (Convention 4): each task references one status.
+CREATE TABLE IF NOT EXISTS todo_status (
+    id    TEXT PRIMARY KEY,
+    label TEXT NOT NULL UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS todo_task (
     id           TEXT PRIMARY KEY,
     title        TEXT,
     body         TEXT NOT NULL,
     created_at   TEXT NOT NULL,
     updated_at   TEXT NOT NULL,
-    status       TEXT,           -- e.g. 'open', 'done', 'archived'
+    status_id    TEXT REFERENCES todo_status(id),
     due_at       TEXT,           -- ISO 8601
-    completed_at TEXT             -- ISO 8601
+    completed_at TEXT            -- ISO 8601
 );
 
+-- Multi-value property (Convention 4): tasks and tags, many-to-many.
 CREATE TABLE IF NOT EXISTS todo_tag (
+    id    TEXT PRIMARY KEY,     -- UUID recommended
+    label TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE IF NOT EXISTS todo_task_tag (
     task_id TEXT NOT NULL REFERENCES todo_task(id),
-    label   TEXT NOT NULL,
-    PRIMARY KEY (task_id, label)
+    tag_id  TEXT NOT NULL REFERENCES todo_tag(id),
+    PRIMARY KEY (task_id, tag_id)
 );
 
 CREATE TABLE IF NOT EXISTS todo_meta (
@@ -30,8 +42,16 @@ DROP VIEW IF EXISTS todo_open_view;
 CREATE VIEW todo_open_view AS
 SELECT id, title, body, due_at, created_at, updated_at
 FROM todo_task
-WHERE status IS NULL OR status = 'open'
+WHERE status_id IS NULL OR status_id = 'open'
 ORDER BY due_at;
+
+-- Seed the format-defined status vocabulary. Fixed ids let the view filter on
+-- them, and DO NOTHING keeps user-edited labels intact on re-application.
+INSERT INTO todo_status (id, label) VALUES
+    ('open', 'Open'),
+    ('done', 'Done'),
+    ('archived', 'Archived')
+ON CONFLICT (id) DO NOTHING;
 
 -- Stamp the schema version this file defines (Convention 7).
 INSERT INTO todo_meta (id, schema_version) VALUES (1, 1)
