@@ -1,6 +1,7 @@
 -- diary: a simple diary format with one entry per date and tags.
+-- Safe to re-apply to an existing database (Convention 6).
 
-CREATE TABLE diary_entry (
+CREATE TABLE IF NOT EXISTS diary_entry (
     id         TEXT PRIMARY KEY,
     title      TEXT,
     body       TEXT NOT NULL,
@@ -10,8 +11,17 @@ CREATE TABLE diary_entry (
     mood       TEXT              -- free text or rating
 );
 
-CREATE TABLE diary_tag (
+CREATE TABLE IF NOT EXISTS diary_tag (
     entry_id TEXT NOT NULL REFERENCES diary_entry(id),
     label    TEXT NOT NULL,
     PRIMARY KEY (entry_id, label)
 );
+
+CREATE TABLE IF NOT EXISTS diary_meta (
+    id             INTEGER PRIMARY KEY CHECK (id = 1),
+    schema_version INTEGER NOT NULL
+);
+
+-- Stamp the schema version this file defines (Convention 7).
+INSERT INTO diary_meta (id, schema_version) VALUES (1, 1)
+ON CONFLICT (id) DO UPDATE SET schema_version = excluded.schema_version;

@@ -138,5 +138,5 @@ note.db を最小限かつメソドロジー非依存に保つため、以下は
 ## 例
 
 - [`basic`](examples/basic/format.sql) — 必須カラムのみを持つ最小フォーマット。
-- [`todo`](examples/todo/format.sql) — ステータス、期限、タグを持つシンプルな ToDo フォーマット。再適用可能な `format.sql`（規約6）と `schema_version` の自己刻印（規約7）の例も兼ねます。
+- [`todo`](examples/todo/format.sql) — ステータス、期限、タグを持つシンプルな ToDo フォーマット。
 - [`diary`](examples/diary/format.sql) — 日付ごとの1エントリとタグを持つシンプルな日記フォーマット。

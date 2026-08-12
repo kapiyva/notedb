@@ -138,5 +138,5 @@ The format name becomes the table prefix (Convention 3), so choose a name distin
 ## Examples
 
 - [`basic`](examples/basic/format.sql) — a minimal format with only the required columns.
-- [`todo`](examples/todo/format.sql) — a simple todo format with status, due date, and tags. Also shows a re-applicable `format.sql` (Convention 6) and a `schema_version` stamp (Convention 7).
+- [`todo`](examples/todo/format.sql) — a simple todo format with status, due date, and tags.
 - [`diary`](examples/diary/format.sql) — a simple diary format with one entry per date and tags.
