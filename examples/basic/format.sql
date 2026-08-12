@@ -1,4 +1,4 @@
--- basic: a minimal note.db format with only the required columns.
+-- basic: a minimal note.sql format with only the required columns.
 -- Safe to re-apply to an existing database (Convention 6).
 
 CREATE TABLE IF NOT EXISTS basic_note (

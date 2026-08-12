@@ -1,4 +1,4 @@
-# note.db
+# note.sql
 
 Minimal SQLite conventions for personal knowledge formats.
 
@@ -6,15 +6,15 @@ English | [日本語](README.ja.md)
 
 Licensed under the [GNU General Public License v3.0](LICENSE).
 
-## What is note.db?
+## What is note.sql?
 
-note.db is a set of shared conventions for using SQLite as a foundation for personal knowledge.
+note.sql is a set of shared conventions for using SQLite as a foundation for personal knowledge.
 
 Tasks, notes, ideas, journals — the digital notebook that holds them has no portable, durable, open common standard. Each note tool stores its data in its own format, leaving a gap.
 
-note.db defines a set of conventions to fill this gap. It specifies only the foundation — the minimum shape of a note table, naming rules — and leaves concrete expression to each format (a set of DDL representing a particular methodology, e.g. `zettelkasten`, `evergreen`). On this shared foundation, multiple formats can coexist in the same SQLite file, and tools work across formats.
+note.sql defines a set of conventions to fill this gap. It specifies only the foundation — the minimum shape of a note table, naming rules — and leaves concrete expression to each format (a set of DDL representing a particular methodology, e.g. `zettelkasten`, `evergreen`). On this shared foundation, multiple formats can coexist in the same SQLite file, and tools work across formats.
 
-note.db is not a library, CLI, or application — it is the conventions themselves. Anyone can publish a format or build tooling on top of it.
+note.sql is not a library, CLI, or application — it is the conventions themselves. Anyone can publish a format or build tooling on top of it.
 
 ## Why SQLite?
 
@@ -24,7 +24,7 @@ SQL is a mature open standard with decades of history. Pulling fragments togethe
 
 SQLite implements that SQL as a single file, readable and writable in any environment — the de facto standard.
 
-The same motivation might seem satisfied by a pile of files like Markdown. But each file is an independent document, with no shared way to bind them together. How tags and relationships are expressed is left to loose conventions — frontmatter keys, folder structures — that depend on each file and the user's discipline, and there is no way to distribute that convention itself so that another tool can apply it consistently. note.db puts that role on the SQLite schema. A format is a DDL — a distributable artifact — that takes effect as structure the moment the database is opened, and aggregation and cross-cutting search come built in as SQL.
+The same motivation might seem satisfied by a pile of files like Markdown. But each file is an independent document, with no shared way to bind them together. How tags and relationships are expressed is left to loose conventions — frontmatter keys, folder structures — that depend on each file and the user's discipline, and there is no way to distribute that convention itself so that another tool can apply it consistently. note.sql puts that role on the SQLite schema. A format is a DDL — a distributable artifact — that takes effect as structure the moment the database is opened, and aggregation and cross-cutting search come built in as SQL.
 
 ---
 
@@ -32,7 +32,7 @@ The same motivation might seem satisfied by a pile of files like Markdown. But e
 
 ### 1. Note Table
 
-The central concept of note.db is the note table. Any table that has at least the following columns is a note table.
+The central concept of note.sql is the note table. Any table that has at least the following columns is a note table.
 
 ```sql
 id         TEXT PRIMARY KEY  -- UUID recommended
@@ -76,17 +76,17 @@ The reference column is named after the note table it points to: take the refere
 
 `label` is the property's human-readable display value — the one string a generic client can always show for the row (the tag text, a file name, a link title). A one-to-many relationship with no such display value is not a property table; model it as a plain additional table (Convention 2).
 
-note.db implies no uniqueness on a property table. Add a primary key or unique constraint that matches your semantics — e.g. `(task_id, label)` for tags, where a note carries each tag at most once, but not for attachments, where the same file name may legitimately repeat.
+note.sql implies no uniqueness on a property table. Add a primary key or unique constraint that matches your semantics — e.g. `(task_id, label)` for tags, where a note carries each tag at most once, but not for attachments, where the same file name may legitimately repeat.
 
 Other columns are at the format designer's discretion (nullable, or with a `DEFAULT`, per Convention 5). A property table may include additional foreign keys to other note tables under any other column name.
 
-Tables that reference a note table but do not match this shape are not property tables; note.db places no restrictions on them.
+Tables that reference a note table but do not match this shape are not property tables; note.sql places no restrictions on them.
 
 ### 5. Extensibility
 
-- On note tables and property tables, columns beyond those specified by note.db must be nullable or carry a `DEFAULT`, so that a client knowing only the note.db-defined columns can still insert a valid row
+- On note tables and property tables, columns beyond those specified by note.sql must be nullable or carry a `DEFAULT`, so that a client knowing only the note.sql-defined columns can still insert a valid row
 - Changing column types or dropping columns is discouraged as it breaks compatibility with tools and other versions of a format reading the same database
-- Anything not defined by note.db is left to the format designer
+- Anything not defined by note.sql is left to the format designer
 
 ### 6. Re-applicable format.sql
 
@@ -95,7 +95,7 @@ A `format.sql` is the complete, current definition of a format. It is recommende
 - Tables and indexes use `CREATE ... IF NOT EXISTS`, so re-applying is a no-op for what already exists
 - Views are dropped and recreated (`DROP VIEW IF EXISTS` then `CREATE VIEW`), so they always end up at the current definition
 
-Views hold no state, so re-applying `format.sql` is itself the mechanism for updating them. This removes stale views from a format's concerns entirely, and leaves transforming existing tables as the only thing a migration has to do. How that transformation is carried out is outside note.db.
+Views hold no state, so re-applying `format.sql` is itself the mechanism for updating them. This removes stale views from a format's concerns entirely, and leaves transforming existing tables as the only thing a migration has to do. How that transformation is carried out is outside note.sql.
 
 ### 7. Version Declaration
 
@@ -108,15 +108,15 @@ schema_version INTEGER NOT NULL
 
 Further metadata is held as additional columns (nullable or with a `DEFAULT`, per Convention 5). The single row can be enforced with a constraint such as the `CHECK (id = 1)` above.
 
-Because note.db assumes multiple formats coexist in one database, a database-global marker such as `PRAGMA user_version` cannot serve this purpose: the version has to be held per format, which means a prefixed table (Conventions 2 and 3). A generic client can then detect the version of any format with a single query.
+Because note.sql assumes multiple formats coexist in one database, a database-global marker such as `PRAGMA user_version` cannot serve this purpose: the version has to be held per format, which means a prefixed table (Conventions 2 and 3). A generic client can then detect the version of any format with a single query.
 
 Advance `schema_version` for compatible evolution within the bounds of Convention 5. Breaking changes are published under a distinct name.
 
 ---
 
-## What note.db Intentionally Leaves Out
+## What note.sql Intentionally Leaves Out
 
-These are excluded to keep note.db minimal and methodology-agnostic.
+These are excluded to keep note.sql minimal and methodology-agnostic.
 
 - Mandatory enforcement of integrity at the DB level
 - How CRUD operations should be implemented
@@ -129,11 +129,11 @@ These are excluded to keep note.db minimal and methodology-agnostic.
 
 ## Publishing a Format
 
-1. Prepare a DDL file (`format.sql`) that satisfies note.db.
+1. Prepare a DDL file (`format.sql`) that satisfies note.sql.
 2. Prepare a `spec.md` describing the design intent.
 3. Publish both in any repository.
 
-The format name becomes the table prefix (Convention 3), so choose a name distinctive enough to avoid colliding with other formats in the same database. The same applies when a breaking change is published under a distinct name (Convention 7). note.db prescribes no versioning scheme beyond that.
+The format name becomes the table prefix (Convention 3), so choose a name distinctive enough to avoid colliding with other formats in the same database. The same applies when a breaking change is published under a distinct name (Convention 7). note.sql prescribes no versioning scheme beyond that.
 
 ## Examples
 
