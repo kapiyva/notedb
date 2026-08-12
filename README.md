@@ -95,7 +95,7 @@ A `format.sql` is the complete, current definition of a format. It is recommende
 - Tables and indexes use `CREATE ... IF NOT EXISTS`, so re-applying is a no-op for what already exists
 - Views are dropped and recreated (`DROP VIEW IF EXISTS` then `CREATE VIEW`), so they always end up at the current definition
 
-Views hold no state, so re-applying `format.sql` is itself the mechanism for updating them. This removes stale views from a format's concerns entirely, and leaves transforming existing tables as the only thing a migration has to do. How that transformation is carried out remains outside note.db.
+Views hold no state, so re-applying `format.sql` is itself the mechanism for updating them. This removes stale views from a format's concerns entirely, and leaves transforming existing tables as the only thing a migration has to do. How that transformation is carried out is outside note.db.
 
 ### 7. Version Declaration
 
@@ -110,7 +110,7 @@ Further metadata is held as additional columns (nullable or with a `DEFAULT`, pe
 
 Because note.db assumes multiple formats coexist in one database, a database-global marker such as `PRAGMA user_version` cannot serve this purpose: the version has to be held per format, which means a prefixed table (Conventions 2 and 3). A generic client can then detect the version of any format with a single query.
 
-Advance `schema_version` for compatible evolution within the bounds of Convention 5. Breaking changes are published under a distinct name, as before.
+Advance `schema_version` for compatible evolution within the bounds of Convention 5. Breaking changes are published under a distinct name.
 
 ---
 
@@ -133,9 +133,7 @@ These are excluded to keep note.db minimal and methodology-agnostic.
 2. Prepare a `spec.md` describing the design intent.
 3. Publish both in any repository.
 
-The format name becomes the table prefix (Convention 3), so choose a name distinctive enough to avoid colliding with other formats in the same database.
-
-A format evolves in two ways. Compatible evolution — adding columns, tables, or views within the bounds of Convention 5 — stays under the same name, and each such release increments `schema_version` (Convention 7) so that a database can report which point of the format it currently holds. A breaking change cannot be marked this way: if it must coexist with data from an earlier release, publish it under a distinct name. note.db prescribes no naming scheme for those releases beyond that.
+The format name becomes the table prefix (Convention 3), so choose a name distinctive enough to avoid colliding with other formats in the same database. The same applies when a breaking change is published under a distinct name (Convention 7). note.db prescribes no versioning scheme beyond that.
 
 ## Examples
 
