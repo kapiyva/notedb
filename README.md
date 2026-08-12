@@ -88,6 +88,30 @@ Tables that reference a note table but do not match this shape are not property 
 - Changing column types or dropping columns is discouraged as it breaks compatibility with tools and other versions of a format reading the same database
 - Anything not defined by note.db is left to the format designer
 
+### 6. Re-applicable format.sql
+
+A `format.sql` is the complete, current definition of a format. It is recommended that it also be safe to re-apply to a database that already holds data — running it again converges the database on the current definition instead of failing or destroying anything.
+
+- Tables and indexes use `CREATE ... IF NOT EXISTS`, so re-applying is a no-op for what already exists
+- Views are dropped and recreated (`DROP VIEW IF EXISTS` then `CREATE VIEW`), so they always end up at the current definition
+
+Views hold no state, so re-applying `format.sql` is itself the mechanism for updating them. This removes stale views from a format's concerns entirely, and leaves transforming existing tables as the only thing a migration has to do. How that transformation is carried out is outside note.db.
+
+### 7. Version Declaration
+
+It is recommended that a format have a `<format>_meta` table: a single-row table holding at least `schema_version INTEGER NOT NULL`, which declares the format's current version.
+
+```sql
+id             INTEGER PRIMARY KEY CHECK (id = 1)  -- one row only
+schema_version INTEGER NOT NULL
+```
+
+Further metadata is held as additional columns (nullable or with a `DEFAULT`, per Convention 5). The single row can be enforced with a constraint such as the `CHECK (id = 1)` above.
+
+Because note.db assumes multiple formats coexist in one database, a database-global marker such as `PRAGMA user_version` cannot serve this purpose: the version has to be held per format, which means a prefixed table (Conventions 2 and 3). A generic client can then detect the version of any format with a single query.
+
+Advance `schema_version` for compatible evolution within the bounds of Convention 5. Breaking changes are published under a distinct name.
+
 ---
 
 ## What note.db Intentionally Leaves Out
@@ -96,7 +120,7 @@ These are excluded to keep note.db minimal and methodology-agnostic.
 
 - Mandatory enforcement of integrity at the DB level
 - How CRUD operations should be implemented
-- Migration between versions of a format
+- Migration between versions of a format (only how a version is declared is defined — Convention 7)
 - Any obligation to provide views
 - How a particular methodology must be expressed
 - Hints about UI or presentation
@@ -109,7 +133,7 @@ These are excluded to keep note.db minimal and methodology-agnostic.
 2. Prepare a `spec.md` describing the design intent.
 3. Publish both in any repository.
 
-The format name becomes the table prefix (Convention 3), so choose a name distinctive enough to avoid colliding with other formats in the same database. note.db does not prescribe a versioning scheme; if a breaking change must coexist with data from an earlier release, publish it under a distinct name.
+The format name becomes the table prefix (Convention 3), so choose a name distinctive enough to avoid colliding with other formats in the same database. The same applies when a breaking change is published under a distinct name (Convention 7). note.db prescribes no versioning scheme beyond that.
 
 ## Examples
 
